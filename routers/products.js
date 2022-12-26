@@ -51,9 +51,9 @@ router.get(`/:id`, async (req, res) => {
 
 //create a product
 router.post(`/`, uploadOptions.single('image'), async (req, res) => {
-
+    console.log(req.body)
     const file = req.file;
-    if (!file) return res.status(400).send('No Image Attached');
+    if (!file) return res.status(400).send('Image Not Found');
 
     const fileName = file.filename;
     const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
@@ -64,11 +64,14 @@ router.post(`/`, uploadOptions.single('image'), async (req, res) => {
         category: req.body.category,
         price: req.body.price,
         description: req.body.description,
-        image: `${basePath}${fileName}`, // "http://localhost:3000/public/upload/image-2323232"
+        // "http://localhost:3000/public/upload/image-2323232"
+        image: `${basePath}${fileName}`,
+        // image: "http://localhost:3000/public/upload/image-2323232",
+
         countInStock: req.body.countInStock,
         isBest: req.body.isBest,
         dateCreated: req.body.dateCreated,
-        origin: req.body.origin,
+        origin: req.body.origin
 
     })
     product = await product.save();

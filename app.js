@@ -18,6 +18,7 @@ app.use(bodyParser.json());
 app.use(morgan('tiny'));
 app.use("/public/uploads", express.static(__dirname + "/public/uploads"));
 app.use(errorHandler);
+app.use(bodyParser.urlencoded({ extended: true }));
 
 //routers
 app.use(`${api}/products`, productRouter)
