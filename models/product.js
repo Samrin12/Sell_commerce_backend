@@ -27,13 +27,11 @@ const productSchema = mongoose.Schema({
     },
     countInStock: {
         type: Number,
-        required: true,
         min: 0,
         max: 100
     },
     isBest: {
-        type: Boolean,
-        default: false,
+        type: String,
     },
     dateCreated: {
         type: Date,
