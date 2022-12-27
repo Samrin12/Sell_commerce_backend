@@ -5,9 +5,11 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv/config');
-const productRouter = require('./routers/products');
 const errorHandler = require("./helpers/error-handler");
 
+//routes
+const productRouter = require('./routers/products');
+const cartsRoutes = require("./routers/carts");
 const api = process.env.API_URL;
 
 app.use(cors());
@@ -21,7 +23,9 @@ app.use(errorHandler);
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //routers
-app.use(`${api}/products`, productRouter)
+app.use(`${api}/products`, productRouter);
+app.use(`${api}/carts`, cartsRoutes);
+
 
 //http://localhost:3000/api/v1/products
 
