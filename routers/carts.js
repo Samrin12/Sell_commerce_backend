@@ -3,8 +3,7 @@ const express = require("express");
 const router = express.Router();
 
 router.get(`/`, async (req, res) => {
-    const cartList = await Order.find()
-        .sort({ enlisted: -1 });
+    const cartList = await Order.find();
 
     if (!cartList) {
         res.status(500).json({ success: false });
@@ -14,18 +13,15 @@ router.get(`/`, async (req, res) => {
 
 router.get(`/:id`, async (req, res) => {
     const cart = await Cart.findById(req.params.id)
-        .populate("name")
         .populate({
-            path: "orderItems",
-            populate: {
-                path: "product"
-            },
-        });
+            path: "product",
+            populate: "category",
+        })
 
     if (!cart) {
         res.status(500).json({ success: false });
     }
-    res.send(order);
+    res.send(cart);
 });
 
 router.post("/", async (req, res) => {
@@ -63,9 +59,9 @@ router.post("/", async (req, res) => {
 
     let cart = new Cart({
         cartItems: cartItemsIdsResolved,
-        name: req.body.name,
-        category: req.body.category,
-        price: req.body.price
+        quantity: req.body.quantity,
+        product: req.body.product,
+        totalPrice: req.body.totalPrice
     });
     cart = await cart.save();
 
