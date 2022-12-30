@@ -1,9 +1,10 @@
-const { Cart } = require("../models/cart");
+const { cart } = require("../models/cart");
 const express = require("express");
+const { cartItem } = require("../models/cartitem");
 const router = express.Router();
 
 router.get(`/`, async (req, res) => {
-    const cartList = await Order.find();
+    const cartList = await cart.find()
 
     if (!cartList) {
         res.status(500).json({ success: false });
@@ -12,11 +13,13 @@ router.get(`/`, async (req, res) => {
 });
 
 router.get(`/:id`, async (req, res) => {
-    const cart = await Cart.findById(req.params.id)
+    const cart = await cart.findById(req.params.id)
         .populate({
-            path: "product",
-            populate: "category",
-        })
+            path: "cartItems",
+            populate: {
+                path: "product"
+            },
+        });
 
     if (!cart) {
         res.status(500).json({ success: false });
@@ -57,11 +60,9 @@ router.post("/", async (req, res) => {
 
     console.log(totalPrices);
 
-    let cart = new Cart({
+    let cart = new cart({
         cartItems: cartItemsIdsResolved,
-        quantity: req.body.quantity,
-        product: req.body.product,
-        totalPrice: req.body.totalPrice
+        totalPrice: totalPrice
     });
     cart = await cart.save();
 
@@ -71,7 +72,7 @@ router.post("/", async (req, res) => {
 });
 
 router.put("/:id", async (req, res) => {
-    const cart = await Cart.findByIdAndUpdate(
+    const cart = await cart.findByIdAndUpdate(
         req.params.id,
         {
             status: req.body.status,
@@ -79,13 +80,13 @@ router.put("/:id", async (req, res) => {
         { new: true }
     );
 
-    if (!cart) return res.status(400).send("Cart update Fails!");
+    if (!cart) return res.status(400).send("the cart cannot be update!");
 
     res.send(cart);
 });
 
 router.delete("/:id", (req, res) => {
-    Cart.findByIdAndRemove(req.params.id)
+    cart.findByIdAndRemove(req.params.id)
         .then(async (cart) => {
             if (cart) {
                 await cart.cartItems.map(async (cartItem) => {
@@ -103,6 +104,29 @@ router.delete("/:id", (req, res) => {
         .catch((err) => {
             return res.status(500).json({ success: false, error: err });
         });
+});
+
+router.get("/get/totalsales", async (req, res) => {
+    const totalSales = await cart.aggregate([
+        { $group: { _id: null, totalsales: { $sum: "$totalPrice" } } },
+    ]);
+
+    if (!totalSales) {
+        return res.status(400).send("The cart sales cannot be generated");
+    }
+
+    res.send({ totalsales: totalSales.pop().totalsales });
+});
+
+router.get(`/get/count`, async (req, res) => {
+    const cartCount = await cart.countDocuments((count) => count);
+
+    if (!cartCount) {
+        res.status(500).json({ success: false });
+    }
+    res.send({
+        cartCount: cartCount,
+    });
 });
 
 

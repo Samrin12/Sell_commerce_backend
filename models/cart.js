@@ -1,19 +1,22 @@
 const mongoose = require('mongoose');
 
 const cartSchema = mongoose.Schema({
-    quantity: {
-        type: Number,
-        required: true,
-    },
-    Product: {
+    cartItems: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'product'
-    },
+        ref: 'OrderItem',
+        required: true
+    }],
     totalPrice: {
         type: Number,
     }
-
 })
 
-exports.cartItem = mongoose.model('cart', cartSchema);
+cartSchema.virtual('id').get(function () {
+    return this._id.toHexString();
+});
 
+cartSchema.set('toJSON', {
+    virtuals: true,
+});
+
+exports.cart = mongoose.model('cart', cartSchema);
